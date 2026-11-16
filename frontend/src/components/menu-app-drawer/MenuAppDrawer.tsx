@@ -19,64 +19,49 @@ const MenuAppDrawer = ({ open, setOpen }: MenuAppDrawerPropsType) => {
   const userData = useAuthenticationStore((state) => state.userData);
   const { t } = useTranslation();
 
-  const DrawerList = (
-    <Box
-      sx={{ width: 250 }}
-      role="presentation"
-      onClick={() => {
-        setOpen(false);
-      }}
-    >
-      <List>
-        <ListItem disablePadding>
-          <ListItemText
-            primary={`${userData?.firstName} ${userData?.lastName}`}
-            color="action"
-            slotProps={{
-              primary: {
-                fontSize: 20,
-                letterSpacing: 0,
-                textAlign: 'center',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                fontWeight: 'medium',
-                paddingY: 2,
-              },
-            }}
-          />
-        </ListItem>
-        <Divider />
-        {routesIndoor.map(
-          (route) =>
-            !route.hideInMenu && (
-              <ListItem key={route.id} disablePadding onClick={() => navigate(route.menuPath)}>
-                <ListItemButton>
-                  {route.icon && (
-                    <ListItemIcon>
-                      <route.icon />
-                    </ListItemIcon>
-                  )}
-                  <ListItemText primary={t(route.labelLangCode)} />
-                </ListItemButton>
-              </ListItem>
-            )
-        )}
-      </List>
-    </Box>
-  );
+  const handleClose = () => setOpen(false);
 
   return (
-    <div>
-      <Drawer
-        open={open}
-        onClose={() => {
-          setOpen(false);
-        }}
-      >
-        {DrawerList}
-      </Drawer>
-    </div>
+    <Drawer open={open} onClose={handleClose}>
+      <Box sx={{ width: 250 }} role="presentation" onClick={handleClose} onKeyDown={handleClose}>
+        <List>
+          <ListItem disablePadding>
+            <ListItemText
+              primary={`${userData?.firstName || ''} ${userData?.lastName || ''}`.trim() || t('indoor_menu.guest')}
+              color="action"
+              slotProps={{
+                primary: {
+                  fontSize: 20,
+                  letterSpacing: 0,
+                  textAlign: 'center',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  fontWeight: 'medium',
+                  paddingY: 2,
+                },
+              }}
+            />
+          </ListItem>
+          <Divider />
+          {routesIndoor.map(
+            (route) =>
+              !route.hideInMenu && (
+                <ListItem key={route.id} disablePadding onClick={() => navigate(route.menuPath)}>
+                  <ListItemButton>
+                    {route.icon && (
+                      <ListItemIcon>
+                        <route.icon />
+                      </ListItemIcon>
+                    )}
+                    <ListItemText primary={t(route.labelLangCode)} />
+                  </ListItemButton>
+                </ListItem>
+              )
+          )}
+        </List>
+      </Box>
+    </Drawer>
   );
 };
 

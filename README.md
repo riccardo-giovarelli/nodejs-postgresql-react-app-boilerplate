@@ -1,6 +1,6 @@
 # nodejs-postgresql-react-app-boilerplate 
 
-Web App Boilerplate with _Node.js_ backend, _PostgreSQL_ database, _React_ frontend in a _Docker_ development environment with the support of _Adminer_ database manager.
+Modern Web App Boilerplate featuring a strict TypeScript environment with a _Node.js/Express 5_ backend, _PostgreSQL 16_ database, and a _Vite + React_ frontend. Fully containerized with a _Docker_ development environment and _Adminer_ for database management.
 
 ## Table of contents
 
@@ -18,23 +18,18 @@ Web App Boilerplate with _Node.js_ backend, _PostgreSQL_ database, _React_ front
     - [App url](#app-url)
     - [Adminer url](#adminer-url)
   - [Frontend routes](#frontend-routes)
-    - [Signin](#signin)
-    - [Signup](#signup)
-    - [Home](#home)
-    - [User profile](#user-profile)
   - [Screenshot](#screenshot)
-    - [Home](#home-1)
+    - [Home](#home)
     - [User profile page](#user-profile-page)
   - [Authors](#authors)
   - [License](#license)
   - [Badges](#badges)
 
-
 ## Version
 1.0.0
 
 ## Prerequisites
-- [Node.js](https://nodejs.org/)
+- [Node.js](https://nodejs.org/) (v20+ recommended)
 - [Yarn](https://yarnpkg.com/)
 - [Docker](https://www.docker.com/)
 
@@ -45,19 +40,21 @@ Web App Boilerplate with _Node.js_ backend, _PostgreSQL_ database, _React_ front
 ```mermaid
 flowchart TD
     NGINX <--> FEid1([Frontend]) -- Tech --> FE-T-LIST["`TypeScript
+    Vite
     React
     React Router
     Zustand
+    TanStack Query
     Material UI
     i18next
     Axios`"]
     NGINX <--> BE([Backend]) -- Tech --> BE-T-LIST["`Node.js
     TypeScript
+    Express 5
     nodemon
-    Express
     node-postgres
     `"]
-    BE <--> DBid1[(Database)] -- Tech --> DB-T-LIST["`PostgreSQL`"]
+    BE <--> DBid1[(Database)] -- Tech --> DB-T-LIST["`PostgreSQL 16`"]
 ```
 
 ## Environment
@@ -65,19 +62,16 @@ flowchart TD
 ### First run :hammer:
 
 1 - From the folder `backend`:
-
 ```bash
   yarn
 ```
 
 2 - From the project root:
-
 ```bash
   docker compose up --build
 ```
 
-3 - From the folder `backend`:
-
+3 - From the folder `backend` (while containers are running):
 ```bash
   yarn migrate up
 ```
@@ -99,42 +93,26 @@ From the project root:
 ```
 
 ## Development server
+
 ### App url
 `http://localhost:8000/`
 
 ### Adminer url
-
 `http://localhost:8080/`
 
 ## Frontend routes
 
-### Signin
-
-`/signin`
-
-
-### Signup
-
-`/signup`
-
-
-### Home
-
-`/`
-
-
-### User profile
-
-`/profile`
+- **Home:** `/`
+- **Signin:** `/signin`
+- **Signup:** `/signup`
+- **User profile:** `/profile`
 
 ## Screenshot
 
 ### Home
-
 ![Home screenshot](images/home.png "Home")
 
 ### User profile page
-
 ![User profile page screenshot](images/user_profile_page.png "User profile page")
 
 ## Authors
@@ -146,7 +124,6 @@ From the project root:
 
 [MIT](https://opensource.org/license/mit)
 
-
 ## Badges
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
@@ -155,17 +132,13 @@ From the project root:
 [![Yarn](https://img.shields.io/badge/Yarn-2C8EBB?logo=yarn&logoColor=fff)](https://yarnpkg.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=fff)](https://www.typescriptlang.org/)
 [![NodeJS](https://img.shields.io/badge/Node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![Express.js](https://img.shields.io/badge/Express.js-%23404d59.svg?logo=express&logoColor=%2361DAFB)](https://expressjs.com/)
+[![Express.js](https://img.shields.io/badge/Express_5-%23404d59.svg?logo=express&logoColor=%2361DAFB)](https://expressjs.com/)
 [![Nodemon Badge](https://img.shields.io/badge/Nodemon-76D04B?logo=nodemon&logoColor=fff&style=flat-square)](https://nodemon.io/)
 [![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=fff)](https://vite.dev/)
 [![React](https://img.shields.io/badge/React-%2320232a.svg?logo=react&logoColor=%2361DAFB)](https://react.dev/)
 [![React Router](https://img.shields.io/badge/React_Router-CA4245?logo=react-router&logoColor=white)](https://reactrouter.com/)
 [![Zustand](https://img.shields.io/badge/Zustand-582D3E.svg?logoColor=white)](https://zustand.docs.pmnd.rs/)
+[![TanStack Query](https://img.shields.io/badge/TanStack_Query-FF4154?logo=react-query&logoColor=white)](https://tanstack.com/query/latest)
 [![i18next](https://img.shields.io/badge/i18next-26A69A?logo=i18next&logoColor=fff&style)](https://www.i18next.com/)
 [![Axios](https://img.shields.io/badge/Axios-5A29E4?logo=axios&logoColor=fff)](https://axios-http.com/)
 [![Adminer](https://img.shields.io/badge/Adminer-34567C.svg?logoColor=white)](https://www.adminer.org/)
-
-
-
-
-

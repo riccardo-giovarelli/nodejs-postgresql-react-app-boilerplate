@@ -1,4 +1,4 @@
-import type { RequestHandler } from 'express';
+import type { RequestHandler } from "express";
 
 /**
  * @function authenticationMiddleware
@@ -7,17 +7,18 @@ import type { RequestHandler } from 'express';
  * If the user is authenticated, it calls the next middleware function. If the user is not authenticated, it responds with
  * a 401 status code and an error message.
  *
- * @param {Request} req - The Express request object.
- * @param {Response} res - The Express response object.
- * @param {NextFunction} next - The next middleware function in the stack.
+ * @param {Request} req The Express request object.
+ * @param {Response} res The Express response object.
+ * @param {NextFunction} next The next middleware function in the stack.
  * @returns {void}
  */
 export const authenticationMiddleware: RequestHandler = (req, res, next) => {
-  if (req.session['username']) {
-    next();
-  } else {
+  if (!req.session.username) {
     res
       .status(401)
-      .json({ code: 'AUTH_ERROR', message: 'Error with authentication', details: 'User not authenticated' });
+      .json({ code: "AUTH_ERROR", message: "Error with authentication", details: "User not authenticated" });
+    return;
   }
+
+  next();
 };

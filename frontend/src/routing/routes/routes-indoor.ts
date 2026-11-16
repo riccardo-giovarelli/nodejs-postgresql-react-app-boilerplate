@@ -7,7 +7,7 @@ const UserProfile = lazy(() => import('@/pages/user-profile'));
 
 export const routesIndoor: readonly RoutesIndoorType[] = Object.freeze([
   {
-    id: 'indor-home',
+    id: 'indoor-home',
     path: '/',
     menuPath: '/',
     name: 'home',
@@ -16,7 +16,7 @@ export const routesIndoor: readonly RoutesIndoorType[] = Object.freeze([
     icon: HomeIcon,
   },
   {
-    id: 'indor-user-profile',
+    id: 'indoor-user-profile',
     path: '/profile',
     menuPath: '/profile',
     name: 'profile',
