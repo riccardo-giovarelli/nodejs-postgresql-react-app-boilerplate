@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import express from "express";
-import pool from "../../../db.ts"; // Import the connection pool
+import pool from "../../../db.ts";
 
 const router = express.Router();
 
@@ -26,7 +26,7 @@ router.post("/", async (req, res) => {
     const checkUserResults = await pool.query(checkUserQuery);
 
     if (checkUserResults?.rows?.[0]?.exists) {
-      res.status(200).json({
+      res.status(409).json({
         code: "USER_EXISTS",
         message: "Error while inserting new user",
         details: "User already exists",
@@ -41,20 +41,15 @@ router.post("/", async (req, res) => {
     const insertUserQuery = {
       name: "insert-new-user",
       text: 'INSERT INTO users("firstName", "lastName", "email", "password") VALUES($1, $2, $3, $4)',
-      values: [
-        req.body.firstName,
-        req.body.lastName,
-        req.body.email.trim(),
-        hash,
-      ],
+      values: [req.body.firstName, req.body.lastName, req.body.email.trim(), hash],
     };
     const insertUserResults = await pool.query(insertUserQuery);
 
-    if (insertUserResults?.rowCount !== 1) {
+    if ((insertUserResults?.rowCount ?? 0) !== 1) {
       throw new Error("Failed to insert new user");
     }
 
-    res.status(200).json({
+    res.status(201).json({
       code: "REGISTRATION_SUCCESSFUL",
       message: "New user saved successfully",
       details: insertUserResults,

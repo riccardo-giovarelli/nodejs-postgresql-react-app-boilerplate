@@ -12,7 +12,7 @@ services:
     tty: true
     ports:
       - '3000:3000'
-    command: yarn run start
+    command: sh -c "yarn install && yarn run start"
     depends_on:
       - database
 
@@ -29,10 +29,10 @@ services:
     tty: true
     ports:
       - '5173:5173'
-    command: yarn run dev
+    command: sh -c "yarn install && yarn run dev"
 
   database:
-    image: postgres
+    image: postgres:16-alpine
     container_name: database
     restart: always
     tty: true
@@ -65,7 +65,7 @@ services:
 
   adminer:
     container_name: adminer
-    image: adminer
+    image: adminer:4
     restart: always
     ports:
       - '8080:8080'

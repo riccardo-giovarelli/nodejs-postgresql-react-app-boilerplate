@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import PasswordChecklist from 'react-password-checklist';
@@ -24,44 +25,48 @@ const Signup = () => {
    * checks if the form is filled correctly, and sends a POST request to the signup endpoint with the user's details.
    * If the registration is successful, navigates to the signin page. If there is an error, sets an appropriate error message.
    *
-   * @param {React.FormEvent<HTMLFormElement>} event - The submit event of the form.
+   * @param {React.FormEvent<HTMLFormElement>} event The submit event of the form.
    */
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     if (isFormFilled(passwordIsValid, profileData?.firstName, profileData?.lastName, profileData?.email)) {
-      tank
-        .post('/users/signup', {
+      try {
+        const results = await tank.post('/users/signup', {
           firstName: profileData?.firstName,
           lastName: profileData?.lastName,
           email: profileData?.email,
           password: profileData?.password,
-        })
-        .then((results) => {
-          if (!results?.data?.code) {
+        });
+
+        if (results?.data?.code === 'REGISTRATION_SUCCESSFUL') {
+          navigate('/signin');
+        } else {
+          setMessage({
+            type: 'error',
+            text: t('authentication.error_inserting_user'),
+          });
+        }
+      } catch (error: unknown) {
+        const axiosError = error as AxiosError<{ code?: string }>;
+        const errorCode = axiosError.response?.data?.code;
+
+        switch (errorCode) {
+          case 'USER_EXISTS':
+            setMessage({
+              type: 'error',
+              text: t('authentication.user_already_exists'),
+            });
+            break;
+          case 'REGISTRATION_ERROR':
+          default:
             setMessage({
               type: 'error',
               text: t('authentication.error_inserting_user'),
             });
-          } else {
-            switch (results.data.code) {
-              case 'REGISTRATION_SUCCESSFUL':
-                navigate('/signin');
-                break;
-              case 'USER_EXISTS':
-                setMessage({
-                  type: 'error',
-                  text: t('authentication.user_already_exists'),
-                });
-                break;
-              case 'REGISTRATION_ERROR':
-                setMessage({
-                  type: 'error',
-                  text: t('authentication.error_inserting_user'),
-                });
-                break;
-            }
-          }
-        });
+            break;
+        }
+      }
     }
   };
 
@@ -71,15 +76,20 @@ const Signup = () => {
    * @description Handles changes to the form fields. Updates the `profileData` state with the new value
    * of the input field that triggered the change event.
    *
-   * @param {React.FormEvent<HTMLInputElement | HTMLTextAreaElement>} event - The change event triggered by the form field.
+   * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} event The change event triggered by the form field.
    *
    * @returns {void}
    */
-  const handleFormChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-    setProfileData({
-      ...profileData,
-      [(event.target as HTMLInputElement).name]: (event.target as HTMLInputElement).value,
-    } as ProfileDataType);
+  const handleFormChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+    const { name, value } = event.target;
+
+    setProfileData(
+      (prev) =>
+        ({
+          ...prev,
+          [name]: value,
+        }) as ProfileDataType
+    );
   };
 
   return (
@@ -145,12 +155,12 @@ const Signup = () => {
           fullWidth
           type="password"
         />
-        {profileData && profileData?.password?.length > 0 && (
+        {profileData && (profileData?.password?.length ?? 0) > 0 && (
           <PasswordChecklist
             rules={['minLength', 'specialChar', 'number', 'capital', 'match']}
             minLength={8}
-            value={profileData?.password}
-            valueAgain={profileData?.rePassword}
+            value={profileData?.password || ''}
+            valueAgain={profileData?.rePassword || ''}
             onChange={(isValid) => {
               setPasswordIsValid(isValid);
             }}

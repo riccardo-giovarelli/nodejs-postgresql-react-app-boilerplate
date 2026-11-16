@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-
 const tank = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
@@ -12,13 +11,19 @@ tank.interceptors.response.use(
     if (error.response && error.response.status) {
       switch (error.response.status) {
         case 401:
-          window.location.replace('/signin?sessionExpired=true');
+          if (!window.location.pathname.includes('/signin')) {
+            window.location.replace('/signin?sessionExpired=true');
+          }
           break;
         default:
-          console.log('Network error', error);
+          console.error('Network error', error);
+          break;
       }
-      return Promise.reject(error);
+    } else {
+      console.error('Network connection error', error);
     }
+
+    return Promise.reject(error);
   }
 );
 

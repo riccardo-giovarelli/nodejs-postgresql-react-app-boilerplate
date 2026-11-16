@@ -12,11 +12,18 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import useAuthentication from './authentication/hooks/useAuthentication/useAuthentication';
 import tank from './utils/axios';
 
+const queryClient = new QueryClient();
+
+const theme = createTheme({
+  colorSchemes: {
+    dark: true,
+  },
+});
+
 const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthentication();
-  const queryClient = new QueryClient();
 
   /**
    * Check if the user is authenticated
@@ -25,26 +32,25 @@ const App = () => {
     if (location.pathname === '/signin' || location.pathname === '/signup') {
       return;
     }
+
     if (!isAuthenticated) {
       navigate('/signin');
       return;
     }
-    (async function () {
-      const results = await tank.get('/users/check');
-      if (results?.data?.code !== 'LOGGED_IN') {
+
+    const verifySession = async () => {
+      try {
+        const results = await tank.get('/users/check');
+        if (results?.data?.code !== 'LOGGED_IN') {
+          navigate('/signin');
+        }
+      } catch {
         navigate('/signin');
       }
-    })();
-  }, [location.pathname, isAuthenticated]);
+    };
 
-  /**
-   * Theme configuration
-   */
-  const theme = createTheme({
-    colorSchemes: {
-      dark: true,
-    },
-  });
+    verifySession();
+  }, [location.pathname, isAuthenticated, navigate]);
 
   return (
     <ThemeProvider theme={theme} defaultMode="light">

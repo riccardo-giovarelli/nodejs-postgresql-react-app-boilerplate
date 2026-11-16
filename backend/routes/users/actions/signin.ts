@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import express from "express";
-import pool from "../../../db.ts"; // Import the connection pool
+import pool from "../../../db.ts";
 
 const router = express.Router();
 
@@ -26,8 +26,8 @@ router.post("/", async (req, res) => {
     const results = await pool.query(query);
 
     // Check if the user exists
-    if (results?.rowCount !== 1) {
-      res.status(200).json({
+    if ((results?.rowCount ?? 0) !== 1) {
+      res.status(401).json({
         code: "USER_NOT_FOUND",
         message: "Error while logging in",
         details: "User not found",
@@ -36,12 +36,9 @@ router.post("/", async (req, res) => {
     }
 
     // Compare the provided password with the hashed password in the database
-    const isPasswordValid = await bcrypt.compare(
-      req.body.password,
-      results.rows[0].password
-    );
+    const isPasswordValid = await bcrypt.compare(req.body.password, results.rows[0].password);
     if (!isPasswordValid) {
-      res.status(200).json({
+      res.status(401).json({
         code: "WRONG_PASSWORD",
         message: "Error while logging in",
         details: "Wrong password",
@@ -50,7 +47,7 @@ router.post("/", async (req, res) => {
     }
 
     // Create a session for the user
-    req.session["username"] = results.rows[0].email;
+    req.session.username = results.rows[0].email;
 
     // Respond with success
     res.status(200).json({

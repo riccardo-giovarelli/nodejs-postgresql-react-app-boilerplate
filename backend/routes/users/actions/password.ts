@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import express from "express";
-import pool from "../../../db.ts"; // Import the connection pool
+import pool from "../../../db.ts";
 import { authenticationMiddleware } from "../users.lib.ts";
 
 const router = express.Router();
@@ -26,23 +26,24 @@ router.put("/", authenticationMiddleware, async (req, res) => {
     const query = {
       name: "update-user-password-by-email",
       text: 'UPDATE users SET "password" = $1 WHERE "email" = $2;',
-      values: [hash, req.session["username"]],
+      values: [hash, req.session.username],
     };
     const results = await pool.query(query);
 
-    if (results?.rowCount !== 1) {
+    if ((results?.rowCount ?? 0) !== 1) {
       res.status(400).json({
         code: "UPDATE_PASSWORD_ERROR",
         message: "Failed to update user password",
         details: "No rows were affected",
       });
-    } else {
-      res.status(200).json({
-        code: "UPDATE_PASSWORD_SUCCESS",
-        message: "Successfully updated user password",
-        details: `Rows affected: ${results.rowCount}`,
-      });
+      return;
     }
+
+    res.status(200).json({
+      code: "UPDATE_PASSWORD_SUCCESS",
+      message: "Successfully updated user password",
+      details: `Rows affected: ${results.rowCount}`,
+    });
   } catch (err) {
     res.status(500).json({
       code: "UPDATE_PASSWORD_ERROR",

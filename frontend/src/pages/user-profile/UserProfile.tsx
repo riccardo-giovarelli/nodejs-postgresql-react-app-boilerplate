@@ -18,6 +18,7 @@ const UserProfile = () => {
   const [profileData, setProfileData] = useState<UserType | null>(null);
   const [passwordData, setPasswordData] = useState<PasswordDataType | null>(null);
   const [message, setMessage] = useState<MessageType | null>(null);
+
   const setUserData = useAuthenticationStore((state) => state.setUserData);
   const userData = useUserData();
   const { t } = useTranslation();
@@ -36,41 +37,33 @@ const UserProfile = () => {
    * If the update is successful, updates the user data in the authentication store and sets a success message.
    * If there is an error, sets an appropriate error message.
    *
-   * @param {React.FormEvent<HTMLFormElement>} event - The submit event of the form.
+   * @param {React.FormEvent<HTMLFormElement>} event The submit event of the form.
    */
-  const handleProfileSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleProfileSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     if (isFormFilled(profileData?.firstName, profileData?.lastName, profileData?.email)) {
-      tank.put('/users/myself', profileData).then((results) => {
-        if (!results?.data?.code) {
+      try {
+        const results = await tank.put('/users/myself', profileData);
+
+        if (results?.data?.code === 'UPDATE_USER_SUCCESS') {
+          setUserData(results.data.details);
+          setMessage({
+            type: 'success',
+            text: t('user_profile.update_success'),
+          });
+        } else {
           setMessage({
             type: 'error',
             text: t('user_profile.update_error'),
           });
-        } else {
-          switch (results.data.code) {
-            case 'UPDATE_USER_SUCCESS':
-              setUserData(results.data.details);
-              setMessage({
-                type: 'success',
-                text: t('user_profile.update_success'),
-              });
-              break;
-            case 'UPDATE_USER_ERROR':
-              setMessage({
-                type: 'error',
-                text: t('user_profile.update_error'),
-              });
-              break;
-            default:
-              setMessage({
-                type: 'error',
-                text: t('user_profile.update_error'),
-              });
-              break;
-          }
         }
-      });
+      } catch {
+        setMessage({
+          type: 'error',
+          text: t('user_profile.update_error'),
+        });
+      }
     }
   };
 
@@ -81,40 +74,32 @@ const UserProfile = () => {
    * checks if the password is valid, and sends a PUT request to the `/users/password` endpoint with the new password.
    * If the update is successful, sets a success message. If there is an error, sets an appropriate error message.
    *
-   * @param {React.FormEvent<HTMLFormElement>} event - The submit event of the form.
+   * @param {React.FormEvent<HTMLFormElement>} event The submit event of the form.
    */
-  const handlePasswordSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handlePasswordSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     if (passwordIsValid) {
-      tank.put('/users/password', { password: passwordData?.password }).then((results) => {
-        if (!results?.data?.code) {
+      try {
+        const results = await tank.put('/users/password', { password: passwordData?.password });
+
+        if (results?.data?.code === 'UPDATE_PASSWORD_SUCCESS') {
+          setMessage({
+            type: 'success',
+            text: t('user_profile.update_success'),
+          });
+        } else {
           setMessage({
             type: 'error',
             text: t('user_profile.update_error'),
           });
-        } else {
-          switch (results.data.code) {
-            case 'UPDATE_PASSWORD_SUCCESS':
-              setMessage({
-                type: 'success',
-                text: t('user_profile.update_success'),
-              });
-              break;
-            case 'UPDATE_PASSWORD_ERROR':
-              setMessage({
-                type: 'error',
-                text: t('user_profile.update_error'),
-              });
-              break;
-            default:
-              setMessage({
-                type: 'error',
-                text: t('user_profile.update_error'),
-              });
-              break;
-          }
         }
-      });
+      } catch {
+        setMessage({
+          type: 'error',
+          text: t('user_profile.update_error'),
+        });
+      }
     }
   };
 
@@ -124,13 +109,18 @@ const UserProfile = () => {
    * @description Handles changes to the profile form fields. Updates the corresponding state based on the field's name.
    * Specifically, it updates the `profileData` state variable when the respective input fields change.
    *
-   * @param {React.FormEvent<HTMLInputElement | HTMLTextAreaElement>} event - The change event of the form fields.
+   * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} event The change event of the form fields.
    */
-  const handleProfileFormChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-    setProfileData({
-      ...profileData,
-      [(event.target as HTMLInputElement).name]: (event.target as HTMLInputElement).value,
-    } as UserType);
+  const handleProfileFormChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+    const { name, value } = event.target;
+
+    setProfileData(
+      (prev) =>
+        ({
+          ...prev,
+          [name]: value,
+        }) as UserType
+    );
   };
 
   /**
@@ -140,13 +130,18 @@ const UserProfile = () => {
    * Specifically, it updates the `passwordData` state variable when the respective input fields change.
    * Additionally, it validates the email format and sets an error message if the email is invalid.
    *
-   * @param {React.FormEvent<HTMLInputElement | HTMLTextAreaElement>} event - The change event of the form fields.
+   * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} event The change event of the form fields.
    */
-  const handlePasswordFormChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-    setPasswordData({
-      ...passwordData,
-      [(event.target as HTMLInputElement).name]: (event.target as HTMLInputElement).value,
-    } as PasswordDataType);
+  const handlePasswordFormChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+    const { name, value } = event.target;
+
+    setPasswordData(
+      (prev) =>
+        ({
+          ...prev,
+          [name]: value,
+        }) as PasswordDataType
+    );
   };
 
   return (
@@ -221,19 +216,19 @@ const UserProfile = () => {
                     name="password"
                     label={t('user_profile.password')}
                     onChange={handlePasswordFormChange}
-                    value={passwordData?.password}
+                    value={passwordData?.password || ''}
                     variant="outlined"
                     margin="normal"
                     required
                     fullWidth
                     type="password"
                   />
-                  {passwordData && passwordData?.password?.length > 0 && (
+                  {passwordData && (passwordData?.password?.length ?? 0) > 0 && (
                     <PasswordChecklist
                       rules={['minLength', 'specialChar', 'number', 'capital', 'match']}
                       minLength={8}
-                      value={passwordData?.password}
-                      valueAgain={passwordData?.rePassword}
+                      value={passwordData?.password || ''}
+                      valueAgain={passwordData?.rePassword || ''}
                       onChange={(isValid) => {
                         setPasswordIsValid(isValid);
                       }}
@@ -246,7 +241,7 @@ const UserProfile = () => {
                     name="rePassword"
                     label={t('user_profile.repeat_password')}
                     onChange={handlePasswordFormChange}
-                    value={passwordData?.rePassword}
+                    value={passwordData?.rePassword || ''}
                     variant="outlined"
                     margin="normal"
                     required

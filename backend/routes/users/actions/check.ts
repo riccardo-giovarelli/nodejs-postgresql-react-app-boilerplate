@@ -1,4 +1,4 @@
-import express from 'express';
+import express from "express";
 
 const router = express.Router();
 
@@ -12,16 +12,18 @@ const router = express.Router();
  * @route GET /
  * @returns {Object} A JSON object with a code and message indicating the authentication status.
  */
-router.get('/', (req, res) => {
-  if (req.session['username']) {
+router.get("/", (req, res) => {
+  if (req.session.username) {
     res
       .status(200)
-      .json({ code: 'LOGGED_IN', message: 'User authenticated', details: 'Current user is authenticated' });
-  } else {
-    res
-      .status(200)
-      .json({ code: 'LOGGED_OUT', message: 'User non authenticated', details: 'Current user is not authenticated' });
+      .json({ code: "LOGGED_IN", message: "User authenticated", details: "Current user is authenticated" });
+
+    return;
   }
+
+  res
+    .status(200)
+    .json({ code: "LOGGED_OUT", message: "User non authenticated", details: "Current user is not authenticated" });
 });
 
 export default router;

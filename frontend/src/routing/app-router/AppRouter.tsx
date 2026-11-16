@@ -10,7 +10,7 @@ const AppRouter = () => (
   <Routes>
     <Route element={<LayoutIndoor />}>
       {routesIndoor.map((route) => (
-        <Route key={route.id} path={route.path} index={route?.index} element={<route.element />} />
+        <Route key={route.id} path={route.path} index={route.index} element={<route.element />} />
       ))}
     </Route>
     <Route element={<LayoutAuthentication />}>
